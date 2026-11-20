@@ -1,5 +1,8 @@
 import pandas as pd
 
+# ==========================================
+# 1. MENU AWAL (LOGIN KASIR, OWNER, KELUAR)
+# ==========================================
 def menu_awal():
     while True:
         print("\n" + "=" * 55)
@@ -161,7 +164,7 @@ def tampilkan_matriks_status():
             print(f"  - Status '{st:<13}': {jumlah} unit")
 
     print("=" * 55)
-    
+
 def tambah_antrean():
     print("\n--- TAMBAH ANTREAN BARU ---")
 
