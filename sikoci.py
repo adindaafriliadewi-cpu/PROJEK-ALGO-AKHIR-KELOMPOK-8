@@ -339,3 +339,180 @@ def tampil_laporan_keuangan():
         print(f"Estimasi Keuntungan  : Rp{estimasi_keuntungan:,}")
 
     print("=" * 60)
+
+
+def kelola_layanan():
+    while True:
+        print("\n--- MANAJEMEN TARIF & PAKET CUCI ---")
+        print("1. Lihat Paket Layanan")
+        print("2. Tambah Paket Layanan")
+        print("3. Hapus Paket Layanan")
+        print("4. Ubah Paket atau Tarif")
+        print("0. Kembali ke Menu Pemilik")
+
+        pilihan = input("Pilih menu (0-4): ").strip()
+
+        try:
+            df_layanan = pd.read_csv("layanan.csv")
+        except FileNotFoundError:
+            df_layanan = pd.DataFrame([
+                {"ID_Paket": "P01", "Nama_Paket": "Cuci Motor Standard", "Jenis_Kendaraan": "Motor", "Harga": 15000},
+                {"ID_Paket": "P02", "Nama_Paket": "Cuci Motor Express", "Jenis_Kendaraan": "Motor", "Harga": 25000},
+                {"ID_Paket": "P03", "Nama_Paket": "Cuci Mobil Regular", "Jenis_Kendaraan": "Mobil", "Harga": 40000},
+                {"ID_Paket": "P04", "Nama_Paket": "Cuci Mobil Premium Wax", "Jenis_Kendaraan": "Mobil", "Harga": 65000}
+            ])
+            df_layanan.to_csv("layanan.csv", index=False)
+
+        if pilihan == "1":
+            print("\n" + "=" * 55)
+
+            if df_layanan.empty:
+                print("Belum ada paket layanan.")
+            else:
+                df_tampil = df_layanan.copy()
+                df_tampil.index = range(1, len(df_tampil) + 1)
+                print(df_tampil.to_string())
+
+            print("=" * 55)
+
+        elif pilihan == "2":
+            id_p = f"P{len(df_layanan) + 1:02d}"
+            nama_p = input("Nama Paket Baru    : ").strip()
+
+            print("Pilih Jenis Kendaraan:")
+            print("1. Motor")
+            print("2. Mobil")
+
+            jenis_opt = input("Pilihan (1/2): ").strip()
+
+            if jenis_opt == "1":
+                jenis_p = "Motor"
+            elif jenis_opt == "2":
+                jenis_p = "Mobil"
+            else:
+                print("[Error] Pilihan jenis kendaraan tidak valid!")
+                continue
+
+            harga_input = input("Harga Paket (Rp)   : ").strip()
+
+            if not harga_input.isdigit():
+                print("[Error] Harga harus berupa angka!")
+                continue
+
+            harga_p = int(harga_input)
+
+            data_baru = pd.DataFrame([{
+                "ID_Paket": id_p,
+                "Nama_Paket": nama_p,
+                "Jenis_Kendaraan": jenis_p,
+                "Harga": harga_p
+            }])
+
+            df_layanan = pd.concat([df_layanan, data_baru], ignore_index=True)
+            df_layanan.to_csv("layanan.csv", index=False)
+
+            print(f"[Berhasil] Paket '{nama_p}' ditambahkan.")
+
+        elif pilihan == "3":
+            if df_layanan.empty:
+                print("Belum ada paket layanan untuk dihapus.")
+                continue
+
+            print("\n" + "=" * 55)
+
+            df_tampil = df_layanan.copy()
+            df_tampil.index = range(1, len(df_tampil) + 1)
+            print(df_tampil.to_string())
+
+            print("=" * 55)
+
+            pilihan_input = input("Pilih nomor paket yang akan dihapus: ").strip()
+
+            if not pilihan_input.isdigit():
+                print("[Error] Input harus berupa angka!")
+                continue
+
+            idx = int(pilihan_input) - 1
+
+            if idx < 0 or idx >= len(df_layanan):
+                print("[Error] Nomor paket tidak valid!")
+                continue
+
+            nama_del = df_layanan.iloc[idx]["Nama_Paket"]
+
+            df_layanan = df_layanan.drop(df_layanan.index[idx]).reset_index(drop=True)
+            df_layanan.to_csv("layanan.csv", index=False)
+
+            print(f"[Berhasil] Paket '{nama_del}' berhasil dihapus.")
+
+        # >>> TAMBAHAN FITUR UBAH PAKET
+        elif pilihan == "4":
+            if df_layanan.empty:
+                print("Belum ada paket layanan.")
+                continue
+
+            print("\nDaftar Paket Layanan:")
+
+            df_tampil = df_layanan.copy()
+            df_tampil.index = range(1, len(df_tampil) + 1)
+            print(df_tampil.to_string())
+
+            pilihan_input = input("Pilih nomor paket yang ingin diubah: ").strip()
+
+            if not pilihan_input.isdigit():
+                print("[Error] Input harus berupa angka!")
+                continue
+
+            idx = int(pilihan_input) - 1
+
+            if idx < 0 or idx >= len(df_layanan):
+                print("[Error] Nomor paket tidak valid!")
+                continue
+
+            nama_baru = input("Nama paket baru (Enter jika tetap): ").strip()
+            harga_baru = input("Harga baru (Enter jika tetap): ").strip()
+
+            if nama_baru != "":
+                df_layanan.loc[idx, "Nama_Paket"] = nama_baru
+
+            if harga_baru != "":
+                if not harga_baru.isdigit():
+                    print("[Error] Harga harus berupa angka!")
+                    continue
+
+                df_layanan.loc[idx, "Harga"] = int(harga_baru)
+
+            df_layanan.to_csv("layanan.csv", index=False)
+
+            print("[Berhasil] Data paket berhasil diperbarui!")
+        # >>> AKHIR TAMBAHAN FITUR UBAH PAKET
+
+        elif pilihan == "0":
+            break
+        else:
+            print("[Error] Pilihan tidak valid.")
+
+
+def analisis_paket_terlaris():
+    try:
+        df_transaksi = pd.read_csv("transaksi.csv", dtype=str)
+    except FileNotFoundError:
+        df_transaksi = pd.DataFrame()
+
+    print("\n--- ANALISIS PAKET TERLARIS ---")
+
+    if df_transaksi.empty:
+        print("Belum ada data transaksi untuk dianalisis.")
+        return
+
+    counts = df_transaksi["Paket"].value_counts().reset_index()
+    counts.columns = ["Nama Paket", "Jumlah Transaksi"]
+    counts.index = range(1, len(counts) + 1)
+
+    print(counts.to_string())
+
+
+# ==========================================
+# EKSEKUSI UTAMA (TANPA MAIN)
+# ==========================================
+menu_awal()
