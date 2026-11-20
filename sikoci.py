@@ -21,7 +21,147 @@ def menu_awal():
             break
         else:
             print("\n[Error] Pilihan tidak valid, harap masukkan angka yang benar.")
-#Login disini dindaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+# ==========================================
+# 2. PROSES LOGIN (PASSWORD BERULANG)
+# ==========================================
+def login_sistem(role_target):
+    label_role = "Kasir" if role_target == "kasir" else "Pemilik / Owner"
+
+    try:
+        df_users = pd.read_csv("users.csv", dtype=str)
+    except FileNotFoundError:
+        df_users = pd.DataFrame([
+            {"username": "kasir", "password": "123", "role": "kasir"},
+            {"username": "owner", "password": "admin", "role": "owner"}
+        ])
+        df_users.to_csv("users.csv", index=False)
+
+    df_users["password"] = df_users["password"].astype(str).str.strip()
+    df_users["role"] = df_users["role"].astype(str).str.strip()
+
+    print("\n" + "=" * 45)
+    print(f"         LOGIN ({label_role.upper()})         ")
+    print("=" * 45)
+
+    # >>> PERBAIKAN LOGIN
+    while True:
+        password = input("Masukkan Password : ").strip()
+
+        matched = df_users[
+            (df_users["password"] == password) &
+            (df_users["role"] == role_target)
+        ]
+
+        if not matched.empty:
+            if role_target == "kasir":
+                print("\n[Login Berhasil] Selamat datang, Kasir!")
+                menu_kasir()
+            elif role_target == "owner":
+                print("\n[Login Berhasil] Selamat datang, Pemilik!")
+                menu_owner()
+            break
+        else:
+            print(f"\n[Error] Password salah untuk akses {label_role}!")
+            print("Silakan masukkan password kembali.")
+    # >>> AKHIR PERBAIKAN LOGIN
+
+
+# ==========================================
+# 3. FITUR OPERASIONAL KASIR
+# ==========================================
+def menu_kasir():
+    while True:
+        print("\n==============================")
+        print("         MENU KASIR           ")
+        print("==============================")
+        print("1. Lihat Antrean Aktif")
+        print("2. Rekap Matriks Status (Nested Loop)")
+        print("3. Tambah Antrean Baru")
+        print("4. Update Status Antrean")
+        print("5. Proses Pembayaran & Struk")
+        print("6. Batalkan Antrean")
+        print("7. Cari Antrean Berdasarkan Plat Nomor")
+        print("0. Logout (Kembali ke Menu Awal)")
+        print("==============================")
+
+        pilihan = input("Pilih menu (0-7): ").strip()
+
+        if pilihan == "1":
+            tampilkan_antrean_aktif()
+        elif pilihan == "2":
+            tampilkan_matriks_status()
+        elif pilihan == "3":
+            tambah_antrean()
+        elif pilihan == "4":
+            update_status_antrean()
+        elif pilihan == "5":
+            proses_pembayaran()
+        elif pilihan == "6":
+            batal_antrean()
+        elif pilihan == "7":
+            cari_antrean()
+        elif pilihan == "0":
+            print("\n[Logout] Berhasil keluar dari akun Kasir.")
+            break
+        else:
+            print("[Error] Pilihan tidak valid.")
+
+
+def tampilkan_antrean_aktif():
+    try:
+        df_antrean = pd.read_csv("antrean.csv", dtype=str)
+    except FileNotFoundError:
+        df_antrean = pd.DataFrame(columns=[
+            "ID_Antrean", "Plat_Nomor", "Nama",
+            "Jenis_Kendaraan", "Paket", "Harga", "Status"
+        ])
+        df_antrean.to_csv("antrean.csv", index=False)
+
+    print("\n" + "=" * 65)
+    print("DAFTAR ANTREAN AKTIF".center(65))
+    print("=" * 65)
+
+    if df_antrean.empty:
+        print("Tidak ada antrean aktif saat ini.")
+    else:
+        df_tampil = df_antrean.copy()
+        df_tampil.index = range(1, len(df_tampil) + 1)
+        print(df_tampil.to_string())
+
+    print("=" * 65)
+
+
+def tampilkan_matriks_status():
+    """Mengolah data antrean bertingkat menggunakan NESTED LOOP."""
+    try:
+        df_antrean = pd.read_csv("antrean.csv", dtype=str)
+    except FileNotFoundError:
+        df_antrean = pd.DataFrame()
+
+    print("\n" + "=" * 55)
+    print("REKAP MATRIKS ANTREAN (NESTED LOOP)".center(55))
+    print("=" * 55)
+
+    kategori_kendaraan = ["Mobil", "Motor"]
+    daftar_status = ["Menunggu", "Sedang Dicuci"]
+
+    for jenis in kategori_kendaraan:
+        print(f"\nKategori: {jenis}")
+        print("-" * 35)
+
+        for st in daftar_status:
+            if not df_antrean.empty:
+                jumlah = len(df_antrean[
+                    (df_antrean["Jenis_Kendaraan"] == jenis) &
+                    (df_antrean["Status"] == st)
+                ])
+            else:
+                jumlah = 0
+
+            print(f"  - Status '{st:<13}': {jumlah} unit")
+
+    print("=" * 55)
+    
 def tambah_antrean():
     print("\n--- TAMBAH ANTREAN BARU ---")
 
