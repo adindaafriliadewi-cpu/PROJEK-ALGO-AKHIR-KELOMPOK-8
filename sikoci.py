@@ -169,7 +169,7 @@ def tambah_antrean():
     print("\n--- TAMBAH ANTREAN BARU ---")
 
     try:
-        df_layanan = pd.read_csv("layanan.csv")
+        df_layanan = pd.read_csv("layanan.csv", dtype={"Harga": int})
     except FileNotFoundError:
         df_layanan = pd.DataFrame([
             {"ID_Paket": "P01", "Nama_Paket": "Cuci Motor Standard", "Jenis_Kendaraan": "Motor", "Harga": 15000},
@@ -181,8 +181,11 @@ def tambah_antrean():
 
     print("\nPilihan Paket Cuci:")
 
-    for idx, row in df_layanan.iterrows():
-        print(f"{idx + 1}. [{row['Jenis_Kendaraan']}] {row['Nama_Paket']} - Rp{int(row['Harga']):,}")
+    for i in range(len(df_layanan)):
+        jenis = df_layanan["Jenis_Kendaraan"].iloc[i]
+        nama_paket = df_layanan["Nama_Paket"].iloc[i]
+        harga = int(df_layanan["Harga"].iloc[i])
+        print(f"{i + 1}. [{jenis}] {nama_paket} - Rp{harga:,}")
 
     pilihan_input = input("\nPilih paket (nomor): ").strip()
 
@@ -201,11 +204,9 @@ def tambah_antrean():
     plat = input("Masukkan Nomor Plat    : ").strip().upper()
     nama = input("Masukkan Nama Pelanggan: ").strip()
 
-    # >>> TAMBAHAN VALIDASI
     if plat == "" or nama == "":
         print("[Error] Nomor plat dan nama pelanggan tidak boleh kosong!")
         return
-    # >>> AKHIR TAMBAHAN VALIDASI
 
     try:
         df_antrean = pd.read_csv("antrean.csv", dtype=str)
@@ -221,9 +222,9 @@ def tambah_antrean():
         "ID_Antrean": id_antrean,
         "Plat_Nomor": plat,
         "Nama": nama,
-        "Jenis_Kendaraan": paket_terpilih["Jenis_Kendaraan"],
-        "Paket": paket_terpilih["Nama_Paket"],
-        "Harga": str(paket_terpilih["Harga"]),
+        "Jenis_Kendaraan": str(paket_terpilih["Jenis_Kendaraan"]),
+        "Paket": str(paket_terpilih["Nama_Paket"]),
+        "Harga": str(int(paket_terpilih["Harga"])),
         "Status": "Menunggu"
     }])
 
