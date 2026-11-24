@@ -639,21 +639,49 @@ def kelola_layanan():
 
 def analisis_paket_terlaris():
     try:
-        df_transaksi = pd.read_csv("transaksi.csv", dtype=str)
+        df_transaksi = pd.read_csv("transaksi.csv")
     except FileNotFoundError:
         df_transaksi = pd.DataFrame()
 
     print("\n--- ANALISIS PAKET TERLARIS ---")
 
-    if df_transaksi.empty:
+    if len(df_transaksi) == 0:
         print("Belum ada data transaksi untuk dianalisis.")
         return
 
-    counts = df_transaksi["Paket"].value_counts().reset_index()
-    counts.columns = ["Nama Paket", "Jumlah Transaksi"]
-    counts.index = range(1, len(counts) + 1)
+    jumlah_paket = {}
 
-    print(counts.to_string())
+    # Menghitung jumlah transaksi setiap paket
+    for paket in df_transaksi["Paket"]:
+        if pd.isna(paket):
+            continue
+
+        if paket in jumlah_paket:
+            jumlah_paket[paket] = jumlah_paket[paket] + 1
+        else:
+            jumlah_paket[paket] = 1
+
+    # Mengubah dictionary menjadi daftar pasangan
+    daftar_paket = []
+    for paket in jumlah_paket:
+        data = [paket, jumlah_paket[paket]]
+        daftar_paket.append(data)
+
+    # Mengurutkan jumlah dari terbesar ke terkecil
+    for i in range(len(daftar_paket)):
+        for j in range(i + 1, len(daftar_paket)):
+            if daftar_paket[j][1] > daftar_paket[i][1]:
+                temp = daftar_paket[i]
+                daftar_paket[i] = daftar_paket[j]
+                daftar_paket[j] = temp
+
+    hasil = pd.DataFrame(
+        daftar_paket,
+        columns=["Nama Paket", "Jumlah Transaksi"]
+    )
+    hasil.index = range(1, len(hasil) + 1)
+
+    print(hasil)
 
 
 # ==========================================
