@@ -591,7 +591,7 @@ def kelola_layanan():
 
         # >>> TAMBAHAN FITUR UBAH PAKET
         elif pilihan == "4":
-            if df_layanan.empty:
+            if len(df_layanan) == 0:
                 print("Belum ada paket layanan.")
                 continue
 
