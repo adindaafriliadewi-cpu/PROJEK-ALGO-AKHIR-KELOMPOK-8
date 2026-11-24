@@ -510,7 +510,7 @@ def kelola_layanan():
         if pilihan == "1":
             print("\n" + "=" * 55)
 
-            if df_layanan.empty:
+            if len(df_layanan) == 0:
                 print("Belum ada paket layanan.")
             else:
                 df_tampil = df_layanan.copy()
@@ -558,7 +558,7 @@ def kelola_layanan():
             print(f"[Berhasil] Paket '{nama_p}' ditambahkan.")
 
         elif pilihan == "3":
-            if df_layanan.empty:
+            if len(df_layanan) == 0:
                 print("Belum ada paket layanan untuk dihapus.")
                 continue
 
