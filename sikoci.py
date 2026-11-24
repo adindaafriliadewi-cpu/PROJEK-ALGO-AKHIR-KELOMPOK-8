@@ -163,7 +163,7 @@ def tambah_antrean():
     print("\n--- TAMBAH ANTREAN BARU ---")
 
     try:
-        df_layanan = pd.read_csv("layanan.csv")
+        df_layanan = pd.read_csv("layanan.csv", dtype={"Harga": int})
     except FileNotFoundError:
         df_layanan = pd.DataFrame([
             {"ID_Paket": "P01", "Nama_Paket": "Cuci Motor Standard", "Jenis_Kendaraan": "Motor", "Harga": 15000},
@@ -175,8 +175,11 @@ def tambah_antrean():
 
     print("\nPilihan Paket Cuci:")
 
-    for idx, row in df_layanan.iterrows():
-        print(f"{idx + 1}. [{row['Jenis_Kendaraan']}] {row['Nama_Paket']} - Rp{int(row['Harga']):,}")
+    for i in range(len(df_layanan)):
+        jenis = df_layanan["Jenis_Kendaraan"].iloc[i]
+        nama_paket = df_layanan["Nama_Paket"].iloc[i]
+        harga = int(df_layanan["Harga"].iloc[i])
+        print(f"{i + 1}. [{jenis}] {nama_paket} - Rp{harga:,}")
 
     pilihan_input = input("\nPilih paket (nomor): ").strip()
 
@@ -195,11 +198,9 @@ def tambah_antrean():
     plat = input("Masukkan Nomor Plat    : ").strip().upper()
     nama = input("Masukkan Nama Pelanggan: ").strip()
 
-    # >>> TAMBAHAN VALIDASI
     if plat == "" or nama == "":
         print("[Error] Nomor plat dan nama pelanggan tidak boleh kosong!")
         return
-    # >>> AKHIR TAMBAHAN VALIDASI
 
     try:
         df_antrean = pd.read_csv("antrean.csv", dtype=str)
@@ -215,9 +216,9 @@ def tambah_antrean():
         "ID_Antrean": id_antrean,
         "Plat_Nomor": plat,
         "Nama": nama,
-        "Jenis_Kendaraan": paket_terpilih["Jenis_Kendaraan"],
-        "Paket": paket_terpilih["Nama_Paket"],
-        "Harga": str(paket_terpilih["Harga"]),
+        "Jenis_Kendaraan": str(paket_terpilih["Jenis_Kendaraan"]),
+        "Paket": str(paket_terpilih["Nama_Paket"]),
+        "Harga": str(int(paket_terpilih["Harga"])),
         "Status": "Menunggu"
     }])
 
@@ -503,7 +504,7 @@ def kelola_layanan():
         if pilihan == "1":
             print("\n" + "=" * 55)
 
-            if df_layanan.empty:
+            if len(df_layanan) == 0:
                 print("Belum ada paket layanan.")
             else:
                 df_tampil = df_layanan.copy()
@@ -551,7 +552,7 @@ def kelola_layanan():
             print(f"[Berhasil] Paket '{nama_p}' ditambahkan.")
 
         elif pilihan == "3":
-            if df_layanan.empty:
+            if len(df_layanan) == 0:
                 print("Belum ada paket layanan untuk dihapus.")
                 continue
 
@@ -584,7 +585,7 @@ def kelola_layanan():
 
         # >>> TAMBAHAN FITUR UBAH PAKET
         elif pilihan == "4":
-            if df_layanan.empty:
+            if len(df_layanan) == 0:
                 print("Belum ada paket layanan.")
                 continue
 
@@ -632,21 +633,49 @@ def kelola_layanan():
 
 def analisis_paket_terlaris():
     try:
-        df_transaksi = pd.read_csv("transaksi.csv", dtype=str)
+        df_transaksi = pd.read_csv("transaksi.csv")
     except FileNotFoundError:
         df_transaksi = pd.DataFrame()
 
     print("\n--- ANALISIS PAKET TERLARIS ---")
 
-    if df_transaksi.empty:
+    if len(df_transaksi) == 0:
         print("Belum ada data transaksi untuk dianalisis.")
         return
 
-    counts = df_transaksi["Paket"].value_counts().reset_index()
-    counts.columns = ["Nama Paket", "Jumlah Transaksi"]
-    counts.index = range(1, len(counts) + 1)
+    jumlah_paket = {}
 
-    print(counts.to_string())
+    # Menghitung jumlah transaksi setiap paket
+    for paket in df_transaksi["Paket"]:
+        if pd.isna(paket):
+            continue
+
+        if paket in jumlah_paket:
+            jumlah_paket[paket] = jumlah_paket[paket] + 1
+        else:
+            jumlah_paket[paket] = 1
+
+    # Mengubah dictionary menjadi daftar pasangan
+    daftar_paket = []
+    for paket in jumlah_paket:
+        data = [paket, jumlah_paket[paket]]
+        daftar_paket.append(data)
+
+    # Mengurutkan jumlah dari terbesar ke terkecil
+    for i in range(len(daftar_paket)):
+        for j in range(i + 1, len(daftar_paket)):
+            if daftar_paket[j][1] > daftar_paket[i][1]:
+                temp = daftar_paket[i]
+                daftar_paket[i] = daftar_paket[j]
+                daftar_paket[j] = temp
+
+    hasil = pd.DataFrame(
+        daftar_paket,
+        columns=["Nama Paket", "Jumlah Transaksi"]
+    )
+    hasil.index = range(1, len(hasil) + 1)
+
+    print(hasil)
 
 
 # ==========================================
