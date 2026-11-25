@@ -55,7 +55,6 @@ def login_sistem(role_target):
             (df_users["role"] == role_target)
         ]
 
-        if not matched.empty:
             if role_target == "kasir":
                 print("\n[Login Berhasil] Selamat datang, Kasir!")
                 menu_kasir()
@@ -112,7 +111,7 @@ def menu_kasir():
 
 def tampilkan_antrean_aktif():
     try:
-        df_antrean = pd.read_csv("antrean.csv", dtype=str)
+        df_antrean = pd.read_csv("antrean.csv")
     except FileNotFoundError:
         df_antrean = pd.DataFrame(columns=[
             "ID_Antrean", "Plat_Nomor", "Nama",
@@ -124,12 +123,11 @@ def tampilkan_antrean_aktif():
     print("DAFTAR ANTREAN AKTIF".center(65))
     print("=" * 65)
 
-    if df_antrean.empty:
+    if len(df_antrean) == 0:
         print("Tidak ada antrean aktif saat ini.")
     else:
-        df_tampil = df_antrean.copy()
-        df_tampil.index = range(1, len(df_tampil) + 1)
-        print(df_tampil.to_string())
+        df_antrean.index = range(1, len(df_antrean) + 1)
+        print(df_antrean)
 
     print("=" * 65)
 
@@ -137,7 +135,7 @@ def tampilkan_antrean_aktif():
 def tampilkan_matriks_status():
     """Mengolah data antrean bertingkat menggunakan NESTED LOOP."""
     try:
-        df_antrean = pd.read_csv("antrean.csv", dtype=str)
+        df_antrean = pd.read_csv("antrean.csv")
     except FileNotFoundError:
         df_antrean = pd.DataFrame()
 
@@ -153,15 +151,14 @@ def tampilkan_matriks_status():
         print("-" * 35)
 
         for st in daftar_status:
-            if not df_antrean.empty:
-                jumlah = len(df_antrean[
-                    (df_antrean["Jenis_Kendaraan"] == jenis) &
-                    (df_antrean["Status"] == st)
-                ])
+            if len(df_antrean) > 0:
+                hasil = df_antrean[df_antrean["Jenis_Kendaraan"] == jenis]
+                hasil = hasil[hasil["Status"] == st]
+                jumlah = len(hasil)
             else:
                 jumlah = 0
 
-            print(f"  - Status '{st:<13}': {jumlah} unit")
+            print(f"Status = {st.ljust(13)} : {jumlah} unit")
 
     print("=" * 55)
 
