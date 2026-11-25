@@ -31,7 +31,7 @@ def login_sistem(role_target):
     label_role = "Kasir" if role_target == "kasir" else "Pemilik / Owner"
 
     try:
-        df_users = pd.read_csv("users.csv", dtype=str)
+        df_users = pd.read_csv("users.csv")
     except FileNotFoundError:
         df_users = pd.DataFrame([
             {"username": "kasir", "password": "123", "role": "kasir"},
