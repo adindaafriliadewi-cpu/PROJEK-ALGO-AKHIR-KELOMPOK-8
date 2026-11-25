@@ -31,7 +31,7 @@ def login_sistem(role_target):
     label_role = "Kasir" if role_target == "kasir" else "Pemilik / Owner"
 
     try:
-        df_users = pd.read_csv("users.csv")
+        df_users = pd.read_csv("users.csv", dtype=str)
     except FileNotFoundError:
         df_users = pd.DataFrame([
             {"username": "kasir", "password": "123", "role": "kasir"},
@@ -39,7 +39,8 @@ def login_sistem(role_target):
         ])
         df_users.to_csv("users.csv", index=False)
 
-    df_users = df_users.astype({"username": "str", "password": "str", "role": "str"})
+    df_users["password"] = df_users["password"].astype(str).str.strip()
+    df_users["role"] = df_users["role"].astype(str).str.strip()
 
     print("\n" + "=" * 45)
     print(f"         LOGIN ({label_role.upper()})         ")
@@ -47,12 +48,14 @@ def login_sistem(role_target):
 
     # >>> PERBAIKAN LOGIN
     while True:
-        password = input("Masukkan Password : ")
+        password = input("Masukkan Password : ").strip()
 
-        matched = df_users[df_users["role"] == role_target]
-        matched = matched[matched["password"] == password]
+        matched = df_users[
+            (df_users["password"] == password) &
+            (df_users["role"] == role_target)
+        ]
 
-        if len(matched) > 0:
+        if not matched.empty:
             if role_target == "kasir":
                 print("\n[Login Berhasil] Selamat datang, Kasir!")
                 menu_kasir()
@@ -109,7 +112,7 @@ def menu_kasir():
 
 def tampilkan_antrean_aktif():
     try:
-        df_antrean = pd.read_csv("antrean.csv")
+        df_antrean = pd.read_csv("antrean.csv", dtype=str)
     except FileNotFoundError:
         df_antrean = pd.DataFrame(columns=[
             "ID_Antrean", "Plat_Nomor", "Nama",
@@ -121,11 +124,12 @@ def tampilkan_antrean_aktif():
     print("DAFTAR ANTREAN AKTIF".center(65))
     print("=" * 65)
 
-    if len(df_antrean) == 0:
+    if df_antrean.empty:
         print("Tidak ada antrean aktif saat ini.")
     else:
-        df_antrean.index = range(1, len(df_antrean) + 1)
-        print(df_antrean)
+        df_tampil = df_antrean.copy()
+        df_tampil.index = range(1, len(df_tampil) + 1)
+        print(df_tampil.to_string())
 
     print("=" * 65)
 
@@ -133,7 +137,7 @@ def tampilkan_antrean_aktif():
 def tampilkan_matriks_status():
     """Mengolah data antrean bertingkat menggunakan NESTED LOOP."""
     try:
-        df_antrean = pd.read_csv("antrean.csv")
+        df_antrean = pd.read_csv("antrean.csv", dtype=str)
     except FileNotFoundError:
         df_antrean = pd.DataFrame()
 
@@ -149,13 +153,15 @@ def tampilkan_matriks_status():
         print("-" * 35)
 
         for st in daftar_status:
-            if len(df_antrean) > 0:
-                hasil = df_antrean[df_antrean["Jenis_Kendaraan"] == jenis]
-                hasil = hasil[hasil["Status"] == st]
-                jumlah = len(hasil)
+            if not df_antrean.empty:
+                jumlah = len(df_antrean[
+                    (df_antrean["Jenis_Kendaraan"] == jenis) &
+                    (df_antrean["Status"] == st)
+                ])
             else:
                 jumlah = 0
-            print(f"Status = {st.ljust(13)} : {jumlah} unit")
+
+            print(f"  - Status '{st:<13}': {jumlah} unit")
 
     print("=" * 55)
 
@@ -211,9 +217,6 @@ def tambah_antrean():
         ])
 
     id_antrean = f"A{len(df_antrean) + 1:03d}"
-    while id_antrean in df_antrean["ID_Antrean"].values:
-        id_antrean = f"A{int(id_antrean[1:]) + 1:03d}"
-    
 
     data_baru = pd.DataFrame([{
         "ID_Antrean": id_antrean,
@@ -549,7 +552,8 @@ def kelola_layanan():
                 "Harga": harga_p
             }])
 
-            df_layanan = pd.concat([df_layanan, data_baru], ignore_index=True)
+            df_layanan = pd.concat([df_layanan, data_baru])
+            df_layanan.index = range(len(df_layanan))
             df_layanan.to_csv("layanan.csv", index=False)
 
             print(f"[Berhasil] Paket '{nama_p}' ditambahkan.")
@@ -650,9 +654,7 @@ def analisis_paket_terlaris():
 
     # Menghitung jumlah transaksi setiap paket
     for paket in df_transaksi["Paket"]:
-        if pd.isna(paket):
-            continue
-
+    
         if paket in jumlah_paket:
             jumlah_paket[paket] = jumlah_paket[paket] + 1
         else:
@@ -668,9 +670,9 @@ def analisis_paket_terlaris():
     for i in range(len(daftar_paket)):
         for j in range(i + 1, len(daftar_paket)):
             if daftar_paket[j][1] > daftar_paket[i][1]:
-                temp = daftar_paket[i]
+                data_temporary = daftar_paket[i]
                 daftar_paket[i] = daftar_paket[j]
-                daftar_paket[j] = temp
+                daftar_paket[j] = data_temporary
 
     hasil = pd.DataFrame(
         daftar_paket,
@@ -682,6 +684,6 @@ def analisis_paket_terlaris():
 
 
 # ==========================================
-# EKSEKUSI UTAMA (TANPA MAIN)
+# EKSEKUSI UTAMA 
 # ==========================================
 menu_awal()
