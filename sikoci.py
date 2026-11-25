@@ -211,6 +211,9 @@ def tambah_antrean():
         ])
 
     id_antrean = f"A{len(df_antrean) + 1:03d}"
+    while id_antrean in df_antrean["ID_Antrean"].values:
+        id_antrean = f"A{int(id_antrean[1:]) + 1:03d}"
+    
 
     data_baru = pd.DataFrame([{
         "ID_Antrean": id_antrean,
