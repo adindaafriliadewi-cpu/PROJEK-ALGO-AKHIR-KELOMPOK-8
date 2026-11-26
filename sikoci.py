@@ -1,8 +1,5 @@
 import pandas as pd
 
-# ==========================================
-# 1. MENU AWAL (LOGIN KASIR, OWNER, KELUAR)
-# ==========================================
 def menu_awal():
     while True:
         print("\n" + "=" * 55)
@@ -24,9 +21,7 @@ def menu_awal():
             break
         else:
             print("\n[Error] Pilihan tidak valid, harap masukkan angka yang benar.")
-# ==========================================
-# 2. PROSES LOGIN (PASSWORD BERULANG)
-# ==========================================
+
 def login_sistem(role_target):
     label_role = "Kasir" if role_target == "kasir" else "Pemilik / Owner"
 
@@ -39,16 +34,18 @@ def login_sistem(role_target):
         ])
         df_users.to_csv("users.csv", index=False)
 
-    df_users["password"] = df_users["password"].astype(str).str.strip()
-    df_users["role"] = df_users["role"].astype(str).str.strip()
+    df_users["password"] = df_users["password"].astype(str).str.strip().str.lower()
+    df_users["role"] = df_users["role"].astype(str).str.strip().str.lower()
+
+    role_target = role_target.strip().lower()
 
     print("\n" + "=" * 45)
     print(f"         LOGIN ({label_role.upper()})         ")
     print("=" * 45)
 
-    # >>> PERBAIKAN LOGIN
+    
     while True:
-        password = input("Masukkan Password : ").strip()
+        password = input("Masukkan Password : ").strip().lower()
 
         matched = df_users[
             (df_users["password"] == password) &
@@ -66,12 +63,8 @@ def login_sistem(role_target):
         else:
             print(f"\n[Error] Password salah untuk akses {label_role}!")
             print("Silakan masukkan password kembali.")
-    # >>> AKHIR PERBAIKAN LOGIN
 
-
-# ==========================================
-# 3. FITUR OPERASIONAL KASIR
-# ==========================================
+   
 def menu_kasir():
     while True:
         print("\n==============================")
@@ -134,7 +127,7 @@ def tampilkan_antrean_aktif():
 
 
 def tampilkan_matriks_status():
-    """Mengolah data antrean bertingkat menggunakan NESTED LOOP."""
+    
     try:
         df_antrean = pd.read_csv("antrean.csv")
     except FileNotFoundError:
@@ -393,7 +386,6 @@ def batal_antrean():
     print(f"[Berhasil] Antrean {id_target} telah dibatalkan.")
 
 
-# >>> TAMBAHAN FUNGSI PENCARIAN ANTREAN
 def cari_antrean():
     try:
         df_antrean = pd.read_csv("antrean.csv")
@@ -420,12 +412,8 @@ def cari_antrean():
         print(hasil)
     else:
         print("\nAntrean dengan nomor plat tersebut tidak ditemukan.")
-# >>> AKHIR TAMBAHAN FUNGSI PENCARIAN ANTREAN
 
 
-# ==========================================
-# 4. FITUR PEMILIK / OWNER
-# ==========================================
 def menu_owner():
     while True:
         print("\n==============================")
@@ -659,7 +647,7 @@ def analisis_paket_terlaris():
 
     jumlah_paket = {}
 
-    # Menghitung jumlah transaksi setiap paket
+   
     for paket in df_transaksi["Paket"]:
     
         if paket in jumlah_paket:
@@ -667,13 +655,13 @@ def analisis_paket_terlaris():
         else:
             jumlah_paket[paket] = 1
 
-    # Mengubah dictionary menjadi daftar pasangan
+    
     daftar_paket = []
     for paket in jumlah_paket:
         data = [paket, jumlah_paket[paket]]
         daftar_paket.append(data)
 
-    # Mengurutkan jumlah dari terbesar ke terkecil
+    
     for i in range(len(daftar_paket)):
         for j in range(i + 1, len(daftar_paket)):
             if daftar_paket[j][1] > daftar_paket[i][1]:
@@ -689,8 +677,4 @@ def analisis_paket_terlaris():
 
     print(hasil)
 
-
-# ==========================================
-# EKSEKUSI UTAMA 
-# ==========================================
 menu_awal()
