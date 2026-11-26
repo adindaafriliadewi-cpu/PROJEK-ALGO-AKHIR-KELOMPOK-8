@@ -54,13 +54,14 @@ def login_sistem(role_target):
             (df_users["password"] == password) &
             (df_users["role"] == role_target)
         ]
-
+        if len(matched) > 0:
             if role_target == "kasir":
                 print("\n[Login Berhasil] Selamat datang, Kasir!")
                 menu_kasir()
             elif role_target == "owner":
                 print("\n[Login Berhasil] Selamat datang, Pemilik!")
                 menu_owner()
+
             break
         else:
             print(f"\n[Error] Password salah untuk akses {label_role}!")
@@ -364,11 +365,11 @@ def batal_antrean():
     tampilkan_antrean_aktif()
 
     try:
-        df_antrean = pd.read_csv("antrean.csv", dtype=str)
+        df_antrean = pd.read_csv("antrean.csv")
     except FileNotFoundError:
         return
 
-    if df_antrean.empty:
+    if len(df_antrean) == 0:
         return
 
     pilihan_input = input("\nPilih nomor urut antrean yang ingin dibatalkan: ").strip()
@@ -385,7 +386,8 @@ def batal_antrean():
 
     id_target = df_antrean.iloc[idx]["ID_Antrean"]
 
-    df_antrean = df_antrean.drop(df_antrean.index[idx]).reset_index(drop=True)
+    df_antrean = df_antrean.drop(df_antrean.index[idx])
+    df_antrean.index = range(0,len(df_antrean))
     df_antrean.to_csv("antrean.csv", index=False)
 
     print(f"[Berhasil] Antrean {id_target} telah dibatalkan.")
@@ -394,12 +396,12 @@ def batal_antrean():
 # >>> TAMBAHAN FUNGSI PENCARIAN ANTREAN
 def cari_antrean():
     try:
-        df_antrean = pd.read_csv("antrean.csv", dtype=str)
+        df_antrean = pd.read_csv("antrean.csv")
     except FileNotFoundError:
         print("Belum ada data antrean.")
         return
 
-    if df_antrean.empty:
+    if len(df_antrean) == 0:
         print("Belum ada antrean yang dapat dicari.")
         return
 
@@ -413,9 +415,9 @@ def cari_antrean():
         df_antrean["Plat_Nomor"].str.upper() == plat
     ]
 
-    if not hasil.empty:
+    if len(hasil) > 0:
         print("\nData antrean ditemukan:")
-        print(hasil.to_string(index=False))
+        print(hasil)
     else:
         print("\nAntrean dengan nomor plat tersebut tidak ditemukan.")
 # >>> AKHIR TAMBAHAN FUNGSI PENCARIAN ANTREAN
@@ -463,14 +465,13 @@ def tampil_laporan_keuangan():
     print("LAPORAN KEUANGAN & TRANSAKSI".center(60))
     print("=" * 60)
 
-    if df_transaksi.empty:
+    if len(df_transaksi) == 0:
         print("Belum ada riwayat transaksi tersimpan.")
     else:
-        df_tampil = df_transaksi.copy()
-        df_tampil.index = range(1, len(df_tampil) + 1)
-        print(df_tampil.to_string())
+        df_transaksi.index = range(1, len(df_transaksi) + 1)
+        print(df_transaksi.to_string())
 
-        total_pemasukan = df_transaksi["Total_Bayar"].astype(int).sum()
+        total_pemasukan = sum(df_transaksi["Total_Bayar"].astype(int))
         persentase_margin = 0.6
         estimasi_keuntungan = int(total_pemasukan * persentase_margin)
 
