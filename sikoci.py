@@ -55,12 +55,7 @@ def login_sistem(role_target):
             (df_users["role"] == role_target)
         ]
 
-<<<<<<< HEAD
-        if len(matched) > 0:
-            if role_target == "kasir":
-=======
         if role_target == "kasir":
->>>>>>> ace52c6468263170dcad268bd2befc4c58f4deca
                 print("\n[Login Berhasil] Selamat datang, Kasir!")
                 menu_kasir()
         elif role_target == "owner":
@@ -219,6 +214,8 @@ def tambah_antrean():
         ])
 
     id_antrean = f"A{len(df_antrean) + 1:03d}"
+    while id_antrean in df_antrean["ID_Antrean"].values:
+        id_antrean = f"A{len(df_antrean) + 1:03d}"
 
     data_baru = pd.DataFrame([{
         "ID_Antrean": id_antrean,
