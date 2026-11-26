@@ -55,13 +55,13 @@ def login_sistem(role_target):
             (df_users["role"] == role_target)
         ]
 
-            if role_target == "kasir":
+        if role_target == "kasir":
                 print("\n[Login Berhasil] Selamat datang, Kasir!")
                 menu_kasir()
-            elif role_target == "owner":
+        elif role_target == "owner":
                 print("\n[Login Berhasil] Selamat datang, Pemilik!")
                 menu_owner()
-            break
+                break
         else:
             print(f"\n[Error] Password salah untuk akses {label_role}!")
             print("Silakan masukkan password kembali.")
