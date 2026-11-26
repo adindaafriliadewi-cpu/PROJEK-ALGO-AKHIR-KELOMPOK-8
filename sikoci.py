@@ -518,7 +518,15 @@ def kelola_layanan():
             print("=" * 55)
 
         elif pilihan == "2":
-            id_p = f"P{len(df_layanan) + 1:02d}"
+            nomor_id = 1
+
+            for id_lama in df_layanan["ID_PAKET"]:
+                nomor = int(id_lama[1:])
+
+                if nomor >= nomor_id:
+                    nomor_id = nomor + 1
+            id_p = f"P{nomor_id:02d}"
+            
             nama_p = input("Nama Paket Baru    : ").strip()
 
             print("Pilih Jenis Kendaraan:")
