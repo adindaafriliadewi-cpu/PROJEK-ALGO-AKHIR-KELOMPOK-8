@@ -78,7 +78,7 @@ def menu_kasir():
         print("         MENU KASIR           ")
         print("==============================")
         print("1. Lihat Antrean Aktif")
-        print("2. Rekap Matriks Status (Nested Loop)")
+        print("2. Rekap Matriks Status")
         print("3. Tambah Antrean Baru")
         print("4. Update Status Antrean")
         print("5. Proses Pembayaran & Struk")
