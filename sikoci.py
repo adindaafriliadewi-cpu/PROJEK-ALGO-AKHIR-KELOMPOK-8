@@ -585,7 +585,6 @@ def kelola_layanan():
 
             print(f"[Berhasil] Paket '{nama_del}' berhasil dihapus.")
 
-        # TAMBAHAN FITUR UBAH PAKET
         elif pilihan == "4":
             if len(df_layanan) == 0:
                 print("Belum ada paket layanan.")
@@ -625,7 +624,6 @@ def kelola_layanan():
             df_layanan.to_csv("layanan.csv", index=False)
 
             print("[Berhasil] Data paket berhasil diperbarui!")
-        # AKHIR TAMBAHAN FITUR UBAH PAKET
 
         elif pilihan == "0":
             break
