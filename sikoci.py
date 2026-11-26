@@ -55,6 +55,7 @@ def login_sistem(role_target):
             (df_users["role"] == role_target)
         ]
 
+        if len(matched) > 0:
             if role_target == "kasir":
                 print("\n[Login Berhasil] Selamat datang, Kasir!")
                 menu_kasir()
